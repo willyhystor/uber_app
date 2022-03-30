@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:uber_rider/config/app_asset.dart';
 import 'package:uber_rider/config/app_material_state.dart';
-import 'package:uber_rider/screens/registration/registration_screen.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class RegistrationScreen extends StatelessWidget {
+  const RegistrationScreen({Key? key}) : super(key: key);
 
-  static const String route = 'login';
+  static const String route = 'registration';
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +27,34 @@ class LoginScreen extends StatelessWidget {
 
             // Label
             const Text(
-              "Login as a Rider",
+              "Registration as a Rider",
               style: TextStyle(
                 fontSize: 24,
                 fontFamily: "Bolt Semi Bold",
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+
+            // Name
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: TextFormField(
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  labelText: "Name",
+                  labelStyle: TextStyle(
+                    fontSize: 14,
+                  ),
+                  hintStyle: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
+                ),
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
             ),
             const SizedBox(height: 4),
 
@@ -44,6 +65,28 @@ class LoginScreen extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: "Email",
+                  labelStyle: TextStyle(
+                    fontSize: 14,
+                  ),
+                  hintStyle: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
+                ),
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            // Phone
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: TextFormField(
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: "Phone",
                   labelStyle: TextStyle(
                     fontSize: 14,
                   ),
@@ -81,37 +124,25 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Login Button
+            // Registration Button
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: ElevatedButton(
-                onPressed: () => onLogin(context),
+                onPressed: onRegister,
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith(
-                      (states) => AppMaterialState.getButtonColor(states)),
+                    (states) => AppMaterialState.getButtonColor(states),
+                  ),
                   shape: MaterialStateProperty.resolveWith(
                     (states) => AppMaterialState.getOutlinedBorder(states),
                   ),
                 ),
                 child: const Text(
-                  'Login',
+                  'Register',
                   style: TextStyle(
                     fontSize: 18,
                     fontFamily: "Bolt Semi Bold",
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Register Button
-            TextButton(
-              onPressed: () => onRegister(context),
-              child: const Text(
-                'Do not have an account? Register here.',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: "Bolt Semi Bold",
                 ),
               ),
             ),
@@ -122,16 +153,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  void onLogin(BuildContext context) {
-    Navigator.push<void>(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => const RegistrationScreen(),
-      ),
-    );
-  }
-
-  void onRegister(BuildContext context) {
-    Navigator.pushNamed(context, RegistrationScreen.route);
+  void onRegister() {
+    print('register');
   }
 }
