@@ -1,4 +1,4 @@
-class AppAsset {
+class AssetConfig {
   static String imageCarAndroid = 'assets/images/car_android.png';
   static String imageCarIos = 'assets/images/car_ios.png';
   static String imageDestIcon = 'assets/images/desticon.png';

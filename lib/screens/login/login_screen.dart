@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uber_rider/config/app_asset.dart';
-import 'package:uber_rider/config/app_material_state.dart';
+import 'package:uber_rider/configs/asset_config.dart';
+import 'package:uber_rider/configs/material_state_config.dart';
 import 'package:uber_rider/screens/registration/registration_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -20,7 +20,7 @@ class LoginScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: Image(
-                image: AssetImage(AppAsset.imageLogo),
+                image: AssetImage(AssetConfig.imageLogo),
                 alignment: Alignment.center,
               ),
             ),
@@ -88,9 +88,9 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () => onLogin(context),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith(
-                      (states) => AppMaterialState.getButtonColor(states)),
+                      (states) => MaterialStateConfig.getButtonColor(states)),
                   shape: MaterialStateProperty.resolveWith(
-                    (states) => AppMaterialState.getOutlinedBorder(states),
+                    (states) => MaterialStateConfig.getOutlinedBorder(states),
                   ),
                 ),
                 child: const Text(

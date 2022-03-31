@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key, required this.title}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key, required this.title}) : super(key: key);
 
-  static const String route = 'home-page';
+  static const String route = 'home';
 
   final String title;
 
   @override
-  State<HomePageScreen> createState() => _HomePageScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePageScreenState extends State<HomePageScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   int _counter = 0;
 
   void _incrementCounter() {
