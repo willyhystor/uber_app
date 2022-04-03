@@ -35,12 +35,11 @@ class _AppState extends State<App> {
         primarySwatch: Colors.blue,
         fontFamily: "Bolt Semi Bold",
       ),
-      initialRoute: LoginScreen.route,
+      initialRoute: HomeScreen.route,
       routes: {
-        HomeScreen.route: (context) =>
-            const HomeScreen(title: 'Uber Rider Mock'),
-        LoginScreen.route: (context) => const LoginScreen(),
-        RegistrationScreen.route: (context) => const RegistrationScreen(),
+        HomeScreen.route: (context) => HomeScreen(),
+        LoginScreen.route: (context) => LoginScreen(),
+        RegistrationScreen.route: (context) => RegistrationScreen(),
       },
       debugShowCheckedModeBanner: true,
     );

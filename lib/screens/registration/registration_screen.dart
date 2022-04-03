@@ -14,7 +14,7 @@ class RegistrationScreen extends StatefulWidget {
   static const String route = 'registration';
 
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
