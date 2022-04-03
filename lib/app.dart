@@ -13,17 +13,17 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   // Initiate db reference
-  // DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users'); // should be added to global var / config
+  // DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users'); // should be added located to folder db
 
   // Initiate firebase
   final FirebaseConfig _firebaseConfig = FirebaseConfig();
 
   @override
   void initState() {
-    super.initState();
-
     WidgetsFlutterBinding.ensureInitialized();
     _firebaseConfig.initiate();
+
+    super.initState();
   }
 
   // This widget is the root of your application.

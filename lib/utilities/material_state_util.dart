@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MaterialStateConfig {
+class MaterialStateUtility {
   // Border State
   static OutlinedBorder getOutlinedBorder(Set<MaterialState> states) {
     return RoundedRectangleBorder(

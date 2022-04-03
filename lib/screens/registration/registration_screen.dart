@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uber_rider/configs/asset_config.dart';
-import 'package:uber_rider/configs/material_state_config.dart';
+import 'package:uber_rider/utilities/material_state_util.dart';
 import 'package:uber_rider/main.dart';
 import 'package:uber_rider/screens/home/home_screen.dart';
 import 'package:uber_rider/utilities/regex_util.dart';
+import 'package:uber_rider/widgets/loading_dialog.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -21,6 +22,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +165,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith(
-                    (states) => MaterialStateConfig.getButtonColor(states),
+                    (states) => MaterialStateUtility.getButtonColor(states),
                   ),
                   shape: MaterialStateProperty.resolveWith(
-                    (states) => MaterialStateConfig.getOutlinedBorder(states),
+                    (states) => MaterialStateUtility.getOutlinedBorder(states),
                   ),
                 ),
                 child: const Text(
@@ -166,6 +177,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     fontSize: 18,
                     fontFamily: "Bolt Semi Bold",
                   ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Login Button
+            TextButton(
+              onPressed: () => toLogin(context),
+              child: const Text(
+                'Already have an account? Login here.',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: "Bolt Semi Bold",
                 ),
               ),
             ),
@@ -209,26 +233,35 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   void _onRegister() async {
     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+    // Show dialog
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return LoadingDialog(msg: 'Please wait...');
+        });
+
     final user = (await _firebaseAuth
             .createUserWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
     )
-            .catchError((message) {
-      _handleError(message.toString());
+            .catchError((e) {
+      Fluttertoast.showToast(msg: e.message);
     }))
         .user;
 
     if (user != null) {
-      usersRef.child(user.uid);
-
-      Map userDataMap = {
+      final userMap = {
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'phone': _phoneController.text.trim(),
       };
 
-      usersRef.child(user.uid).set(userDataMap);
+      try {
+        usersRef.child(user.uid).set(userMap);
+      } catch (e) {
+        Fluttertoast.showToast(msg: e.toString());
+      }
 
       Fluttertoast.showToast(
           msg: 'Congratulations, your account has been created');
@@ -239,9 +272,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       Fluttertoast.showToast(
           msg: 'There is some problem, please contact our Help Center');
     }
+
+    // close dialog
+    Navigator.pop(context);
   }
 
-  void _handleError(String message) {
-    Fluttertoast.showToast(msg: message);
+  void toLogin(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }
