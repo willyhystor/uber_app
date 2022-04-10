@@ -5,8 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uber_rider/configs/asset_config.dart';
 import 'package:uber_rider/utilities/material_state_util.dart';
 import 'package:uber_rider/main.dart';
-import 'package:uber_rider/screens/home/home_screen.dart';
-import 'package:uber_rider/screens/registration/registration_screen.dart';
+import 'package:uber_rider/screens/home_screen.dart';
+import 'package:uber_rider/screens/registration_screen.dart';
 import 'package:uber_rider/utilities/regex_util.dart';
 import 'package:uber_rider/widgets/loading_dialog.dart';
 

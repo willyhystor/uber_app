@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_rider/configs/firebase_config.dart';
-import 'package:uber_rider/screens/home/home_screen.dart';
-import 'package:uber_rider/screens/login/login_screen.dart';
-import 'package:uber_rider/screens/registration/registration_screen.dart';
+import 'package:uber_rider/notifiers/pickup_notifier.dart';
+import 'package:uber_rider/screens/home_screen.dart';
+import 'package:uber_rider/screens/login_screen.dart';
+import 'package:uber_rider/screens/registration_screen.dart';
+import 'package:uber_rider/screens/search_location_screen.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -29,19 +32,23 @@ class _AppState extends State<App> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Uber Driver',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: "Bolt Semi Bold",
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => PickupNotifier(),
+      child: MaterialApp(
+        title: 'Uber Driver',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: "Bolt Semi Bold",
+        ),
+        initialRoute: HomeScreen.route,
+        routes: {
+          HomeScreen.route: (context) => HomeScreen(),
+          LoginScreen.route: (context) => LoginScreen(),
+          RegistrationScreen.route: (context) => RegistrationScreen(),
+          SearchLocationScreen.route: (context) => SearchLocationScreen(),
+        },
+        debugShowCheckedModeBanner: true,
       ),
-      initialRoute: HomeScreen.route,
-      routes: {
-        HomeScreen.route: (context) => HomeScreen(),
-        LoginScreen.route: (context) => LoginScreen(),
-        RegistrationScreen.route: (context) => RegistrationScreen(),
-      },
-      debugShowCheckedModeBanner: true,
     );
   }
 }
