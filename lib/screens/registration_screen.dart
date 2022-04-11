@@ -11,7 +11,7 @@ import 'package:uber_rider/widgets/loading_dialog.dart';
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
 
-  static const String route = 'registration';
+  static const String route = '/registration';
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_rider/configs/firebase_config.dart';
-import 'package:uber_rider/notifiers/pickup_notifier.dart';
+import 'package:uber_rider/notifiers/location_notifier.dart';
 import 'package:uber_rider/screens/home_screen.dart';
 import 'package:uber_rider/screens/login_screen.dart';
 import 'package:uber_rider/screens/registration_screen.dart';
@@ -33,7 +33,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (BuildContext context) => PickupNotifier(),
+      create: (BuildContext context) => LocationNotifier(),
       child: MaterialApp(
         title: 'Uber Driver',
         theme: ThemeData(

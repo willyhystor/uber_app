@@ -13,9 +13,7 @@ class Remote {
 
     try {
       if (response.statusCode == 200) {
-        var decodeData = jsonDecode(response.body);
-
-        return decodeData;
+        return jsonDecode(response.body);
       }
 
       return "No response";

@@ -38,6 +38,8 @@ dependencies:
   geolocator: ^8.2.0
   http: ^0.13.4
   provider: ^6.0.2
+  flutter_polyline_points: ^1.0.0
+
 
 
 dev_dependencies:

@@ -1,34 +1,59 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_rider/configs/asset_config.dart';
-import 'package:uber_rider/notifiers/pickup_notifier.dart';
+import 'package:uber_rider/models/address_model.dart';
+import 'package:uber_rider/notifiers/location_notifier.dart';
 import 'package:uber_rider/repositories/map_repository.dart';
 import 'package:uber_rider/screens/search_location_screen.dart';
 import 'package:uber_rider/widgets/divider_widget.dart';
+import 'package:uber_rider/widgets/loading_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
-  static const String route = 'home';
+  static const String route = '/home';
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  MapRepository mapRepository = MapRepository();
+
   final Completer<GoogleMapController> _mapControllerCompleter = Completer();
   late GoogleMapController _googleMapController;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Position? _currentPosition;
-  final _geolocator = Geolocator();
+  // final _geolocator = Geolocator();
   var _bottomPadding = 0.0;
 
   final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
+
+  Set<Marker> markers = {};
+  Set<Polyline> polylines = {};
+  Set<Circle> circles = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // /// origin marker
+    // _addMarker(LatLng(_originLatitude, _originLongitude), "origin",
+    //     BitmapDescriptor.defaultMarker);
+
+    // /// destination marker
+    // _addMarker(LatLng(_destLatitude, _destLongitude), "destination",
+    //     BitmapDescriptor.defaultMarkerWithHue(90));
+    // _getPolyline();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,15 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
             zoomGesturesEnabled: true,
             zoomControlsEnabled: true,
             compassEnabled: true,
-            onMapCreated: (GoogleMapController controller) {
-              _mapControllerCompleter.complete(controller);
-              _googleMapController = controller;
-              _locatePosition();
-
-              setState(() {
-                _bottomPadding = 320;
-              });
-            },
+            markers: markers,
+            polylines: polylines,
+            circles: circles,
+            onMapCreated: _onMapCreated,
           ),
 
           // HamburgerButton for drawer
@@ -208,11 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Search drop off
                     GestureDetector(
-                      onTap: () {
-                        print('object');
-                        Navigator.pushNamed(
-                            context, SearchLocationScreen.route);
-                      },
+                      onTap: () => _getDropoffLocation(context),
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -220,9 +236,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black54,
-                              blurRadius: 6,
+                              blurRadius: 2,
                               spreadRadius: 0.5,
-                              offset: Offset(0.7, 0.7),
+                              offset: Offset(1, 0.5),
                             ),
                           ],
                         ),
@@ -256,10 +272,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                Provider.of<PickupNotifier>(context)
+                                Provider.of<LocationNotifier>(context)
                                             .pickupLocation !=
                                         null
-                                    ? Provider.of<PickupNotifier>(context)
+                                    ? Provider.of<LocationNotifier>(context)
                                         .pickupLocation!
                                         .formattedAddress!
                                     : 'Name',
@@ -292,19 +308,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.grey,
                         ),
                         SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Add Work'),
-                            SizedBox(height: 4),
-                            Text(
-                              'Your work address',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                Provider.of<LocationNotifier>(context)
+                                            .dropoffLocation !=
+                                        null
+                                    ? Provider.of<LocationNotifier>(context)
+                                        .dropoffLocation!
+                                        .formattedAddress!
+                                    : 'Add Work',
+                                maxLines: 2,
                               ),
-                            )
-                          ],
+                              SizedBox(height: 4),
+                              Text(
+                                'Your work address',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                ),
+                              )
+                            ],
+                          ),
                         )
                       ],
                     ),
@@ -316,6 +343,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    _mapControllerCompleter.complete(controller);
+    _googleMapController = controller;
+    _locatePosition();
+
+    setState(() {
+      _bottomPadding = 320;
+    });
   }
 
   void _locatePosition() async {
@@ -331,9 +368,134 @@ class _HomeScreenState extends State<HomeScreen> {
     _googleMapController
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    String address =
-        await MapRepository.searchCoordinateAddress(context, _currentPosition!);
+    await mapRepository.searchCoordinateAddress(context, _currentPosition!);
+  }
 
-    print(address);
+  void _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    final marker = Marker(
+      markerId: MarkerId(id),
+      icon: descriptor,
+      position: position,
+      infoWindow: InfoWindow(title: 'test', snippet: 'snippet test'),
+    );
+    markers.add(marker);
+  }
+
+  void _addCircle(LatLng position, Color color, String id) {
+    final circle = Circle(
+      circleId: CircleId(id),
+      fillColor: color,
+      strokeColor: color,
+      radius: 12,
+      strokeWidth: 4,
+    );
+
+    setState(() {
+      circles.add(circle);
+    });
+  }
+
+  void _addPolyline() {
+    final polyline = Polyline(
+      polylineId: PolylineId("poly"),
+      color: Colors.blue,
+      jointType: JointType.round,
+      width: 4,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      geodesic: true,
+      points: polylineCoordinates,
+    );
+
+    setState(() {
+      polylines.add(polyline);
+    });
+  }
+
+  void _animateCamera(
+      AddressModel pickupLocation, AddressModel dropoffLocation) {
+    LatLngBounds latLngBounds;
+    if (pickupLocation.latitude! > dropoffLocation.latitude! &&
+        pickupLocation.longitude! > dropoffLocation.longitude!) {
+      latLngBounds = LatLngBounds(
+          southwest: dropoffLocation.latLng!,
+          northeast: pickupLocation.latLng!);
+    } else if (pickupLocation.latitude! > dropoffLocation.latitude!) {
+      latLngBounds = LatLngBounds(
+          southwest:
+              LatLng(dropoffLocation.latitude!, pickupLocation.longitude!),
+          northeast:
+              LatLng(pickupLocation.latitude!, dropoffLocation.longitude!));
+    } else if (pickupLocation.longitude! > dropoffLocation.longitude!) {
+      latLngBounds = LatLngBounds(
+          southwest:
+              LatLng(pickupLocation.latitude!, dropoffLocation.longitude!),
+          northeast:
+              LatLng(dropoffLocation.latitude!, pickupLocation.longitude!));
+    } else {
+      latLngBounds = LatLngBounds(
+          southwest: pickupLocation.latLng!,
+          northeast: dropoffLocation.latLng!);
+    }
+
+    _googleMapController
+        .animateCamera(CameraUpdate.newLatLngBounds(latLngBounds, 72));
+  }
+
+  void _getDropoffLocation(context) async {
+    await Navigator.pushNamed(context, SearchLocationScreen.route);
+
+    final dropoffLocation =
+        Provider.of<LocationNotifier>(context, listen: false).dropoffLocation;
+
+    if (dropoffLocation?.formattedAddress != null) {
+      showDialog(
+        context: context,
+        builder: (context) => LoadingDialog(msg: 'Please wait...'),
+      );
+
+      final pickupLocation =
+          Provider.of<LocationNotifier>(context, listen: false).pickupLocation;
+
+      final direction = await mapRepository.getDirectionDetail(
+          pickupLocation!.latLng!, dropoffLocation!.latLng!);
+
+      Navigator.pop(context);
+
+      List<PointLatLng> decodedPolylinePointsResult =
+          polylinePoints.decodePolyline(direction.encodedPoints!);
+
+      polylineCoordinates.clear();
+      if (decodedPolylinePointsResult.isNotEmpty) {
+        for (var e in decodedPolylinePointsResult) {
+          polylineCoordinates.add(LatLng(e.latitude, e.longitude));
+        }
+      }
+
+      // Set marker
+      markers.clear();
+      // _addMarker(
+      //   LatLng(pickupLocation.latitude!, pickupLocation.longitude!),
+      //   "origin",
+      //   BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      // );
+
+      _addMarker(
+        LatLng(dropoffLocation.latitude!, dropoffLocation.longitude!),
+        "destination",
+        BitmapDescriptor.defaultMarker,
+      );
+
+      // Set polyline or path
+      _addPolyline();
+
+      // Animate Camera to zoom out
+      _animateCamera(pickupLocation, dropoffLocation);
+
+      // Add circle poisition
+      circles.clear;
+      _addCircle(pickupLocation.latLng!, Colors.blueAccent, 'pickupId');
+      _addCircle(dropoffLocation.latLng!, Colors.deepPurple, 'dropoffId');
+    }
   }
 }
