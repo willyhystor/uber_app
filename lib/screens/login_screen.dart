@@ -20,6 +20,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -176,14 +178,13 @@ class _LoginScreenState extends State<LoginScreen> {
           return LoadingDialog(msg: 'Please wait...');
         });
 
-    final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
     final user = (await _firebaseAuth
             .signInWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
     )
             .catchError((e) {
+      Navigator.pop(context);
       Fluttertoast.showToast(msg: e.message);
     }))
         .user;
@@ -191,6 +192,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       usersRef.child(user.uid).once().then((value) => handleAuth(value, user));
     } else {
+      Navigator.pop(context);
+
       Fluttertoast.showToast(
           msg: 'There is some problem, please contact our Help Center');
     }

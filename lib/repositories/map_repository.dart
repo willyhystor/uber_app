@@ -32,4 +32,13 @@ class MapRepository {
       LatLng origin, LatLng destination) async {
     return mapRemote.getDirectionDetail(origin, destination);
   }
+
+  // Should have moved to usecase package
+  Future<double> calculateFares(DirectionModel direction) async {
+    // duration / second * $0.2
+    double timeTravelFare = direction.durationValue! / 60 * 0.2;
+    // distance / 1000m * $0.2
+    double distanceTravelFare = direction.distanceValue! / 1000 * 0.2;
+    return timeTravelFare + distanceTravelFare;
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:uber_rider/configs/map_config.dart';
+import 'package:uber_rider/configs/config.dart';
 import 'package:uber_rider/models/address_model.dart';
 import 'package:uber_rider/models/direction_model.dart';
 import 'package:uber_rider/models/place_prediction_model.dart';
@@ -17,7 +17,7 @@ class MapRemote {
 
     final param = {
       'latlng': '${position.latitude},${position.longitude}',
-      'key': MapConfig.key,
+      'key': Config.apiKey,
     };
 
     var response =
@@ -56,7 +56,7 @@ class MapRemote {
       // 'radius': 500.toString(),
       // 'strictbounds': true.toString(),
       'types': 'geocode',
-      'key': MapConfig.key,
+      'key': Config.apiKey,
       'components': 'country:us',
     };
 
@@ -75,7 +75,7 @@ class MapRemote {
 
     final param = {
       'place_id': id,
-      'key': MapConfig.key,
+      'key': Config.apiKey,
     };
 
     var response =
@@ -107,7 +107,7 @@ class MapRemote {
     final param = {
       'origin': '${origin.latitude},${origin.longitude}',
       'destination': '${destination.latitude},${destination.longitude}',
-      'key': MapConfig.key,
+      'key': Config.apiKey,
     };
 
     var response =
